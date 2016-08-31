@@ -60,13 +60,65 @@
 (deftest test-get-amqp-reindex-queue
   (is (= "amqp-reindex-queue" (get-amqp-reindex-queue props))))
 
-;; not working for reasons I can't figure out, commenting out for now
-;(deftest test-validate
-;  (testing "all properties to be validated are in local.properites"
-;    (is (validate props println)))
-;  (testing "all properties in local.properties are validated"
-;    (let [ks        (set (keys props))
-;          missing   (atom #{})
-;          log-error (fn [k] (swap! missing conj k))]
-;      (is (false? (validate bad-props log-error)))
-;      (is (= ks @missing)))))
+(deftest test-get-default-es-host
+  (is (= "elasticsearch" (get-es-host bad-props))))
+
+(deftest test-get-default-es-port
+  (is (= "9200" (get-es-port bad-props))))
+
+(deftest test-get-default-es-scroll-size
+  (is (= "1000" (get-es-scroll-size bad-props))))
+
+(deftest test-get-default-icat-host
+  (is (= "irods" (get-icat-host bad-props))))
+
+(deftest test-get-default-icat-port
+  (is (= "5432" (get-icat-port bad-props))))
+
+(deftest test-get-default-icat-user
+  (is (= "rods" (get-icat-user bad-props))))
+
+(deftest test-get-default-icat-pass
+  (is (= "notprod" (get-icat-pass bad-props))))
+
+(deftest test-get-default-icat-db
+  (is (= "ICAT" (get-icat-db bad-props))))
+
+(deftest test-get-default-base-collection
+  (is (= "/iplant" (get-base-collection bad-props))))
+
+(deftest test-get-default-index-batch-size
+  (is (= 1000 (get-index-batch-size bad-props))))
+
+(deftest test-get-default-amqp-host
+  (is (= "rabbit" (get-amqp-host bad-props))))
+
+(deftest test-get-default-amqp-port
+  (is (= 5672 (get-amqp-port bad-props))))
+
+(deftest test-get-default-amqp-user
+  (is (= "guest" (get-amqp-user bad-props))))
+
+(deftest test-get-default-amqp-pass
+  (is (= "guest" (get-amqp-pass bad-props))))
+
+(deftest test-get-default-amqp-reindex-queue
+  (is (= "infosquito.reindex" (get-amqp-reindex-queue bad-props))))
+
+(deftest test-get-default-exchange-name
+  (is (= "de" (get-amqp-exchange-name bad-props))))
+
+(deftest test-get-default-exchange-durability
+  (is (true? (amqp-exchange-durable? bad-props))))
+
+(deftest test-get-default-exchange-auto-deletion
+  (is (false? (amqp-exchange-auto-delete? bad-props))))
+
+(deftest test-default-notify-enabled
+  (is (true? (notify-enabled? bad-props))))
+
+(deftest test-default-notify-count
+  (is (= 10000 (get-notify-count bad-props))))
+
+(deftest test-get-default-retry-interval
+  (is (= 900 (get-retry-interval bad-props))))

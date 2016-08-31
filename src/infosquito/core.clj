@@ -15,22 +15,10 @@
   (:import [java.util Properties]))
 
 
-(defn- log-invalid-prop
-  [prop-name]
-  (log/error "configuration setting," prop-name ", is undefined"))
-
-
-(defn- validate-props
-  [p]
-  (when-not (props/validate p log-invalid-prop)
-    (ss/throw+ "The configuration parameters are invalid.")))
-
-
 (defn- load-config-from-file
   [config-path]
   (let [p (ref nil)]
     (config/load-config-from-file config-path p)
-    (validate-props @p)
     @p))
 
 
