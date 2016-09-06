@@ -1,19 +1,24 @@
-FROM discoenv/javabase
+FROM clojure:alpine
 
-USER root
 VOLUME ["/etc/iplant/de"]
 
-COPY conf/main/logback.xml /
-COPY target/infosquito-standalone.jar /
-
 ARG git_commit=unknown
-ARG buildenv_git_commit=unknown
 ARG version=unknown
 LABEL org.iplantc.de.infosquito.git-ref="$git_commit" \
-      org.iplantc.de.infosquito.version="$version" \
-      org.iplantc.de.buildenv.git-ref="$buildenv_git_commit"
+      org.iplantc.de.infosquito.version="$version"
 
-RUN ln -s "/opt/jdk/bin/java" "/bin/infosquito"
+COPY . /usr/src/app
+COPY conf/main/logback.xml /usr/src/app/logback.xml
+
+WORKDIR /usr/src/app
+
+RUN apk add --update git && \
+    rm -rf /var/cache/apk
+
+RUN lein uberjar && \
+    cp target/infosquito-standalone.jar .
+
+RUN ln -s "/usr/bin/java" "/bin/infosquito"
+
 ENTRYPOINT ["infosquito", "-Dlogback.configurationFile=/etc/iplant/de/logging/infosquito-logging.xml", "-cp", ".:infosquito-standalone.jar", "infosquito.core"]
 CMD ["--help"]
-
