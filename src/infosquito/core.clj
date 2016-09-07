@@ -47,7 +47,7 @@
 (def svc-info
   {:desc "An ICAT database crawler used to index the contents of iRODS."
    :app-name "infosquito"
-   :group-id "org.iplantc"
+   :group-id "org.cyverse"
    :art-id "infosquito"
    :service "infosquito"})
 
