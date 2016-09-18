@@ -115,30 +115,13 @@
   (Math/abs (get-int props "infosquito.index-batch-size" "indexing batch size")))
 
 
-(defn get-amqp-host
+(defn get-amqp-uri
   [props]
-  (get-str props "infosquito.amqp.host"))
-
-
-(defn get-amqp-port
-  [props]
-  (get-int props "infosquito.amqp.port" "AMQP port"))
-
-
-(defn get-amqp-user
-  [props]
-  (get-str props "infosquito.amqp.user"))
-
-
-(defn get-amqp-pass
-  [props]
-  (get-str props "infosquito.amqp.password"))
-
+  (get-str props "infosquito.amqp.uri"))
 
 (defn get-amqp-exchange-name
   [props]
   (get-str props "infosquito.amqp.exchange.name"))
-
 
 (defn amqp-exchange-durable?
   [props]
