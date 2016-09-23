@@ -7,8 +7,7 @@
             [langohr.queue :as lq]
             [langohr.consumers :as lc]
             [langohr.basic :as lb]
-            [langohr.exchange :as le])
-  (:import [java.io IOException]))
+            [langohr.exchange :as le]))
 
 (def ^:const initial-sleep-time 5000)
 (def ^:const max-sleep-time 320000)
@@ -23,10 +22,7 @@
 (defn- connection-attempt
   [props millis-to-next-attempt]
   (try
-    (rmq/connect {:host     (cfg/get-amqp-host props)
-                  :port     (cfg/get-amqp-port props)
-                  :username (cfg/get-amqp-user props)
-                  :password (cfg/get-amqp-pass props)})
+    (rmq/connect {:uri (cfg/get-amqp-uri props)})
     (catch IOException e
       (log/error e "unable to establish AMQP connection - trying again in"
                  millis-to-next-attempt "milliseconds")
