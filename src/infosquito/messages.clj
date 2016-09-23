@@ -7,7 +7,8 @@
             [langohr.queue :as lq]
             [langohr.consumers :as lc]
             [langohr.basic :as lb]
-            [langohr.exchange :as le]))
+            [langohr.exchange :as le])
+  (:import [java.io IOException]))
 
 (def ^:const initial-sleep-time 5000)
 (def ^:const max-sleep-time 320000)
@@ -65,7 +66,7 @@
  [props ch]
  (let [exchange   (cfg/get-amqp-exchange-name props)
        queue-name (cfg/get-amqp-reindex-queue props)]
-   (le/direct ch exchange
+   (le/topic ch exchange
      {:durable     (cfg/amqp-exchange-durable? props)
       :auto-delete (cfg/amqp-exchange-auto-delete? props)})
    (declare-queue ch exchange queue-name)

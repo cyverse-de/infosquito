@@ -45,17 +45,8 @@
 (deftest test-get-index-batch-size
   (is (= 100 (get-index-batch-size props))))
 
-(deftest test-get-amqp-host
-  (is (= "amqp-host" (get-amqp-host props))))
-
-(deftest test-get-amqp-port
-  (is (= 9999 (get-amqp-port props))))
-
-(deftest test-get-amqp-user
-  (is (= "amqp-user" (get-amqp-user props))))
-
-(deftest test-get-amqp-pass
-  (is (= "amqp-pass" (get-amqp-pass props))))
+(deftest test-get-amqp-uri
+  (is (= "amqp://user:password@amqp-host:9999" (get-amqp-uri props))))
 
 (deftest test-get-amqp-reindex-queue
   (is (= "amqp-reindex-queue" (get-amqp-reindex-queue props))))
@@ -90,17 +81,8 @@
 (deftest test-get-default-index-batch-size
   (is (= 1000 (get-index-batch-size bad-props))))
 
-(deftest test-get-default-amqp-host
-  (is (= "rabbit" (get-amqp-host bad-props))))
-
-(deftest test-get-default-amqp-port
-  (is (= 5672 (get-amqp-port bad-props))))
-
-(deftest test-get-default-amqp-user
-  (is (= "guest" (get-amqp-user bad-props))))
-
-(deftest test-get-default-amqp-pass
-  (is (= "guest" (get-amqp-pass bad-props))))
+(deftest test-get-default-amqp-uri
+  (is (= "amqp://guest:guestPW@localhost:5672" (get-amqp-uri bad-props))))
 
 (deftest test-get-default-amqp-reindex-queue
   (is (= "infosquito.reindex" (get-amqp-reindex-queue bad-props))))

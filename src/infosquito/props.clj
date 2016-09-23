@@ -19,10 +19,7 @@
    "infosquito.icat.db"                   "ICAT"
    "infosquito.base-collection"           "/iplant"
    "infosquito.index-batch-size"          1000
-   "infosquito.amqp.host"                 "rabbit"
-   "infosquito.amqp.port"                 5672
-   "infosquito.amqp.user"                 "guest"
-   "infosquito.amqp.password"             "guest"
+   "infosquito.amqp.uri"                  "amqp://guest:guestPW@localhost:5672"
    "infosquito.amqp.reindex-queue"        "infosquito.reindex"
    "infosquito.amqp.exchange.name"        "de"
    "infosquito.amqp.exchange.durable"     "True"
