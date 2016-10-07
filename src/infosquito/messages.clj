@@ -2,6 +2,7 @@
   (:require [clojure.tools.logging :as log]
             [infosquito.actions :as actions]
             [infosquito.props :as cfg]
+            [infosquito.amqp :as amqp]
             [langohr.core :as rmq]
             [langohr.channel :as lch]
             [langohr.queue :as lq]
@@ -9,6 +10,23 @@
             [langohr.basic :as lb]
             [langohr.exchange :as le])
   (:import [java.io IOException]))
+
+(defn exchange-config
+  [props]
+  (amqp/exchange-config
+   props
+   cfg/get-amqp-exchange-name
+   cfg/amqp-exchange-durable?
+   cfg/amqp-exchange-auto-delete?))
+
+(defn queue-config
+  [props]
+  (amqp/queue-config
+   props
+   cfg/get-amqp-reindex-queue
+   (fn [_] true)
+   (fn [_] false)
+   (fn [_] ["index.all" "index.data"])))
 
 (def ^:const initial-sleep-time 5000)
 (def ^:const max-sleep-time 320000)
@@ -62,16 +80,6 @@
       (Thread/sleep (cfg/get-retry-millis props))
       (lb/reject ch delivery-tag true))))
 
-(defn- add-reindex-subscription
- [props ch]
- (let [exchange   (cfg/get-amqp-exchange-name props)
-       queue-name (cfg/get-amqp-reindex-queue props)]
-   (le/topic ch exchange
-     {:durable     (cfg/amqp-exchange-durable? props)
-      :auto-delete (cfg/amqp-exchange-auto-delete? props)})
-   (declare-queue ch exchange queue-name)
-   (lc/blocking-subscribe ch queue-name (partial reindex-handler props))))
-
 (defn- rmq-close
   [c]
   (try
@@ -80,16 +88,19 @@
 
 (defn- subscribe
   [conn props]
-  (let [ch (lch/open conn)]
+  (let [ch           (lch/open conn)
+        exchange-cfg (exchange-config props)
+        queue-cfg    (queue-config props)]
     (try
-      (add-reindex-subscription props ch)
+      (amqp/configure-channel ch exchange-cfg queue-cfg)
+      (lc/blocking-subscribe ch (:name queue-cfg) (partial reindex-handler props))
       (catch Exception e (log/error e "error occurred during message processing"))
       (finally (rmq-close ch)))))
 
 (defn repeatedly-connect
   "Repeatedly attempts to connect to the AMQP broker subscribe to incomming messages."
   [props]
-  (let [conn (amqp-connect (cfg/get-amqp-uri props))]
+  (let [conn         (amqp-connect (cfg/get-amqp-uri props))]
     (log/info "successfully connected to AMQP broker")
     (try
       (subscribe conn props)
