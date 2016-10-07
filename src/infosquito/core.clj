@@ -5,6 +5,8 @@
             [slingshot.slingshot :as ss]
             [clojure-commons.config :as config]
             [infosquito.actions :as actions]
+            [infosquito.amqp :as amqp]
+            [infosquito.props :as cfg]
             [infosquito.exceptions :as exn]
             [infosquito.icat :as icat]
             [infosquito.messages :as messages]
@@ -53,13 +55,18 @@
 
 (defn -main
   [& args]
-  (tc/with-logging-context svc-info
-    (let [{:keys [options arguments errors summary]} (ccli/handle-args svc-info args cli-options)]
-      (when-not (fs/exists? (:config options))
-        (ccli/exit 1 "The config file does not exist."))
-      (when-not (fs/readable? (:config options))
-        (ccli/exit 1 "The config file is not readable."))
-      (let [props (load-config-from-file (:config options))]
-        (if (:reindex options)
-          (actions/reindex props)
-          (messages/repeatedly-connect props))))))
+  (tc/with-logging-context
+   svc-info
+   (let [{:keys [options arguments errors summary]} (ccli/handle-args svc-info args cli-options)]
+     (when-not (fs/exists? (:config options))
+       (ccli/exit 1 "The config file does not exist."))
+     (when-not (fs/readable? (:config options))
+       (ccli/exit 1 "The config file is not readable."))
+     (let [props (load-config-from-file (:config options))]
+       (if (:reindex options)
+         (actions/reindex props)
+         (amqp/repeatedly-connect props
+                                  (cfg/get-amqp-uri props)
+                                  (messages/exchange-config props)
+                                  (messages/queue-config props)
+                                  (partial messages/reindex-handler props)))))))

@@ -9,24 +9,31 @@
 
 
 (def ^:private prop-defaults
-  {"infosquito.es.host"                   "elasticsearch"
-   "infosquito.es.port"                   "9200"
-   "infosquito.es.scroll-size"            "1000"
-   "infosquito.icat.host"                 "irods"
-   "infosquito.icat.port"                 "5432"
-   "infosquito.icat.user"                 "rods"
-   "infosquito.icat.password"             "notprod"
-   "infosquito.icat.db"                   "ICAT"
-   "infosquito.base-collection"           "/iplant"
-   "infosquito.index-batch-size"          1000
-   "infosquito.amqp.uri"                  "amqp://guest:guestPW@localhost:5672"
-   "infosquito.amqp.reindex-queue"        "infosquito.reindex"
-   "infosquito.amqp.exchange.name"        "de"
-   "infosquito.amqp.exchange.durable"     "True"
-   "infosquito.amqp.exchange.auto-delete" "False"
-   "infosquito.notify.enabled"            "True"
-   "infosquito.notify.count"              10000
-   "infosquito.retry-interval"            900})
+  {"infosquito.es.host"                          "elasticsearch"
+   "infosquito.es.port"                          "9200"
+   "infosquito.es.scroll-size"                   "1000"
+   "infosquito.icat.host"                        "irods"
+   "infosquito.icat.port"                        "5432"
+   "infosquito.icat.user"                        "rods"
+   "infosquito.icat.password"                    "notprod"
+   "infosquito.icat.db"                          "ICAT"
+   "infosquito.base-collection"                  "/iplant"
+   "infosquito.index-batch-size"                 1000
+   "infosquito.amqp.uri"                         "amqp://guest:guestPW@localhost:5672"
+   "infosquito.amqp.reindex-queue"               "infosquito.reindex"
+   "infosquito.amqp.exchange.name"               "de"
+   "infosquito.amqp.exchange.durable"            "True"
+   "infosquito.amqp.exchange.auto-delete"        "False"
+   "infosquito.events.amqp.uri"                  "amqp://guest:guest@rabbit:5672/"
+   "infosquito.events.amqp.exchange.name"        "de"
+   "infosquito.events.amqp.exchange.durable"     "True"
+   "infosquito.events.amqp.exchange.auto-delete" "False"
+   "infosquito.events.amqp.queue.name"           "events.infosquito.queue"
+   "infosquito.events.amqp.queue.durable"        "True"
+   "infosquito.events.amqp.queue.auto-delete"    "False"
+   "infosquito.notify.enabled"                   "True"
+   "infosquito.notify.count"                     10000
+   "infosquito.retry-interval"                   900})
 
 (def ^:private prop-names (into [] (keys prop-defaults)))
 
@@ -134,6 +141,41 @@
 (defn get-amqp-reindex-queue
   [props]
   (get-str props "infosquito.amqp.reindex-queue"))
+
+
+(defn events-amqp-uri
+  [props]
+  (get-str props "infosquito.events.amqp.uri"))
+
+
+(defn events-exchange-name
+  [props]
+  (get-str props "infosquito.events.amqp.exchange.name"))
+
+
+(defn events-exchange-durable?
+  [props]
+  (Boolean/parseBoolean (get-str props "infosquito.events.amqp.exchange.durable")))
+
+
+(defn events-exchange-auto-delete?
+  [props]
+  (Boolean/parseBoolean (get-str props "infosquito.events.amqp.exchange.auto-delete")))
+
+
+(defn events-queue-name
+  [props]
+  (get-str props "infosquito.events.amqp.queue.name"))
+
+
+(defn events-queue-durable
+  [props]
+  (Boolean/parseBoolean (get-str props "infosquito.events.amqp.queue.durable")))
+
+
+(defn events-queue-auto-delete
+  [props]
+  (Boolean/parseBoolean (get-str props "infosquito.events.amqp.queue.auto-delete")))
 
 
 (defn notify-enabled?
