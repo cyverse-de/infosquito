@@ -21,9 +21,9 @@
       (log/warn "sleep interrupted"))))
 
 (defn- connection-attempt
-  [props millis-to-next-attempt]
+  [uri millis-to-next-attempt]
   (try
-    (rmq/connect {:uri (cfg/get-amqp-uri props)})
+    (rmq/connect {:uri uri})
     (catch IOException e
       (log/error e "unable to establish AMQP connection - trying again in"
                  millis-to-next-attempt "milliseconds")
@@ -36,9 +36,9 @@
 (defn- amqp-connect
   "Repeatedly attempts to connect to the AMQP broker, sleeping for increasing periods of
    time when a connection can't be established."
-  [props]
+  [uri]
   (->> (iterate next-sleep-time initial-sleep-time)
-       (map (partial connection-attempt props))
+       (map (partial connection-attempt uri))
        (remove nil?)
        (first)))
 
@@ -89,7 +89,7 @@
 (defn repeatedly-connect
   "Repeatedly attempts to connect to the AMQP broker subscribe to incomming messages."
   [props]
-  (let [conn (amqp-connect props)]
+  (let [conn (amqp-connect (cfg/get-amqp-uri props))]
     (log/info "successfully connected to AMQP broker")
     (try
       (subscribe conn props)
