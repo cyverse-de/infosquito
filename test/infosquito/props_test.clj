@@ -104,3 +104,12 @@
 
 (deftest test-get-default-retry-interval
   (is (= 900 (get-retry-interval bad-props))))
+
+(deftest test-default-events-queue-name
+  (is (= "events.infosquito.queue" (events-queue-name bad-props))))
+
+(deftest test-default-events-queue-durable?
+  (is (= true (events-queue-durable? bad-props))))
+
+(deftest test-default-events-queue-auto-delete?
+  (is (= false (events-queue-auto-delete? bad-props))))
