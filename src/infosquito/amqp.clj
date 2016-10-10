@@ -93,7 +93,6 @@
     uri          - string containing the URI of the message broker to connect to
     exchange-cfg - the return value of (infosquito.amqp/exchange-config)
     queue-cfg    - the return value of (infosqito.amqp/queue-config)
-    subscribe-fn - a function that takes [channel queue-name handler-fn] as params
     handler-fn   - a Langohr message delivery handler function"
   [props uri exchange-cfg queue-cfg handler-fn]
   (let [conn (connect uri)]
