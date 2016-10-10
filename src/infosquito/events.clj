@@ -3,7 +3,8 @@
             [infosquito.amqp :as amqp]
             [infosquito.props :as cfg]
             [langohr.basic :as lb])
-  (:import [org.cyverse.events.ping PingMessages$Ping PingMessages$Pong]))
+  (:import [org.cyverse.events.ping PingMessages$Ping PingMessages$Pong]
+           [com.google.protobuf.util JsonFormat]))
 
 (defn exchange-config
   [props]
@@ -23,9 +24,9 @@
    (fn [_] ["events.infosquito.#"])))
 
 (defn- ping-handler
-  [channel {:keys [routing-key]} msg]
-  (log/info (format "[events/ping-handler] [%s] [%s]" routing-key msg))
-  (lb/publish channel (cfg/events-exchange-name) "events.infosquito.pong"
+  [props channel {:keys [routing-key]} msg]
+  (log/info (format "[events/ping-handler] [%s] [%s]" routing-key (String. msg)))
+  (lb/publish channel (cfg/events-exchange-name props) "events.infosquito.pong"
     (.print (JsonFormat/printer)
       (.. (PingMessages$Pong/newBuilder)
         (setPongFrom "infosquito")
@@ -39,4 +40,4 @@
   (lb/ack channel delivery-tag)
   (let [handler (get handlers routing-key)]
     (if-not (nil? handler)
-      (handler channel metadata payload))))
+      (handler props channel metadata payload))))

@@ -168,12 +168,12 @@
   (get-str props "infosquito.events.amqp.queue.name"))
 
 
-(defn events-queue-durable
+(defn events-queue-durable?
   [props]
   (Boolean/parseBoolean (get-str props "infosquito.events.amqp.queue.durable")))
 
 
-(defn events-queue-auto-delete
+(defn events-queue-auto-delete?
   [props]
   (Boolean/parseBoolean (get-str props "infosquito.events.amqp.queue.auto-delete")))
 
