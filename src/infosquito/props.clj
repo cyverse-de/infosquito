@@ -143,11 +143,6 @@
   (get-str props "infosquito.amqp.reindex-queue"))
 
 
-(defn events-amqp-uri
-  [props]
-  (get-str props "infosquito.events.amqp.uri"))
-
-
 (defn events-exchange-name
   [props]
   (get-str props "infosquito.events.amqp.exchange.name"))

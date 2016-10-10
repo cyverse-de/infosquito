@@ -70,7 +70,7 @@
    function blocks and should be called last in (-main)."
   [props]
   (amqp/repeatedly-connect props
-                           (cfg/events-amqp-uri props)
+                           (cfg/get-amqp-uri props)
                            (events/exchange-config props)
                            (events/queue-config props)
                            (partial events/event-handler props)))
