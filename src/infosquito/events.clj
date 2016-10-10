@@ -10,9 +10,9 @@
   [props]
   (amqp/exchange-config
    props
-   cfg/events-exchange-name
-   cfg/events-exchange-durable?
-   cfg/events-exchange-auto-delete?))
+   cfg/get-amqp-exchange-name
+   cfg/amqp-exchange-durable?
+   cfg/amqp-exchange-auto-delete?))
 
 (defn queue-config
   [props]
@@ -26,7 +26,7 @@
 (defn- ping-handler
   [props channel {:keys [routing-key]} msg]
   (log/info (format "[events/ping-handler] [%s] [%s]" routing-key (String. msg)))
-  (lb/publish channel (cfg/events-exchange-name props) "events.infosquito.pong"
+  (lb/publish channel (cfg/get-amqp-exchange-name props) "events.infosquito.pong"
     (.print (JsonFormat/printer)
       (.. (PingMessages$Pong/newBuilder)
         (setPongFrom "infosquito")

@@ -143,21 +143,6 @@
   (get-str props "infosquito.amqp.reindex-queue"))
 
 
-(defn events-exchange-name
-  [props]
-  (get-str props "infosquito.events.amqp.exchange.name"))
-
-
-(defn events-exchange-durable?
-  [props]
-  (Boolean/parseBoolean (get-str props "infosquito.events.amqp.exchange.durable")))
-
-
-(defn events-exchange-auto-delete?
-  [props]
-  (Boolean/parseBoolean (get-str props "infosquito.events.amqp.exchange.auto-delete")))
-
-
 (defn events-queue-name
   [props]
   (get-str props "infosquito.events.amqp.queue.name"))
