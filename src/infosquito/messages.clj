@@ -8,7 +8,9 @@
             [langohr.consumers :as lc]
             [langohr.basic :as lb]
             [langohr.exchange :as le])
-  (:import [java.io IOException]))
+  (:import [java.io IOException]
+           [org.cyverse.events.ping PingMessages$Pong]
+           [com.google.protobuf.util JsonFormat]))
 
 (def ^:const initial-sleep-time 5000)
 (def ^:const max-sleep-time 320000)
@@ -48,7 +50,7 @@
               {:durable     true
                :auto-delete false
                :exclusive   false})
-  (doseq [key ["index.all" "index.data"]]
+  (doseq [key ["index.all" "index.data" "events.infosqito.#"]]
     (lq/bind ch queue-name exchange {:routing-key key})))
 
 (defn- reindex-handler
@@ -62,6 +64,28 @@
       (Thread/sleep (cfg/get-retry-millis props))
       (lb/reject ch delivery-tag true))))
 
+(defn- ping-handler
+  [props channel {:keys [delivery-tag routing-key]} msg]
+  (try
+    (lb/ack channel delivery-tag)
+    (log/info (format "[events/ping-handler] [%s] [%s]" routing-key (String. msg)))
+    (lb/publish channel (cfg/get-amqp-exchange-name props) "events.infosquito.pong"
+      (.print (JsonFormat/printer)
+        (.. (PingMessages$Pong/newBuilder)
+          (setPongFrom "infosquito")
+          (build))))))
+
+(def handlers
+  {"index.all"              reindex-handler
+   "index.data"             reindex-handler
+   "events.infosquito.ping" ping-handler})
+
+(defn- message-router
+  [props channel {:keys [routing-key] :as metadata} msg]
+  (let [handler (get handlers routing-key)]
+    (if-not (nil? handler)
+      (handler props channel metadata msg))))
+
 (defn- add-reindex-subscription
  [props ch]
  (let [exchange   (cfg/get-amqp-exchange-name props)
@@ -70,7 +94,7 @@
      {:durable     (cfg/amqp-exchange-durable? props)
       :auto-delete (cfg/amqp-exchange-auto-delete? props)})
    (declare-queue ch exchange queue-name)
-   (lc/blocking-subscribe ch queue-name (partial reindex-handler props))))
+   (lc/blocking-subscribe ch queue-name (partial message-router props))))
 
 (defn- rmq-close
   [c]
