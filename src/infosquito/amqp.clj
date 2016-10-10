@@ -31,7 +31,7 @@
   [curr-sleep-time]
   (min max-sleep-time (* curr-sleep-time 2)))
 
-(defn connect
+(defn- connect
   "Repeatedly attempts to connect to the AMQP broker, sleeping for increasing periods of
    time when a connection can't be established."
   [uri]
@@ -40,7 +40,7 @@
        (remove nil?)
        (first)))
 
-(defn close
+(defn- close
   [c]
   (try
     (rmq/close c)
