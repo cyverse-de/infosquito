@@ -8,6 +8,7 @@
             [infosquito.amqp :as amqp]
             [infosquito.props :as cfg]
             [infosquito.exceptions :as exn]
+            [infosquito.events :as events]
             [infosquito.icat :as icat]
             [infosquito.messages :as messages]
             [infosquito.props :as props]
@@ -53,6 +54,27 @@
    :art-id "infosquito"
    :service "infosquito"})
 
+(defn- connect-for-reindexing
+  "Starts a thread for handling reindexing messages. Non-blocking."
+  [props]
+  (.start (Thread. (fn [] (amqp/repeatedly-connect
+                           props
+                           (cfg/get-amqp-uri props)
+                           (messages/exchange-config props)
+                           (messages/queue-config props)
+                           (partial messages/reindex-handler props))))))
+
+(defn- connect-for-events
+  "Sets up the AMQP broker connection for handling event messages. Does not
+   start up a separate thread -- unlike (connect-for-reindexing) -- so this
+   function blocks and should be called last in (-main)."
+  [props]
+  (amqp/repeatedly-connect props
+                           (cfg/events-amqp-uri props)
+                           (events/exchange-config props)
+                           (events/queue-config props)
+                           (partial events/event-handler props)))
+
 (defn -main
   [& args]
   (tc/with-logging-context
@@ -64,9 +86,7 @@
        (ccli/exit 1 "The config file is not readable."))
      (let [props (load-config-from-file (:config options))]
        (if (:reindex options)
-         (actions/reindex props)
-         (amqp/repeatedly-connect props
-                                  (cfg/get-amqp-uri props)
-                                  (messages/exchange-config props)
-                                  (messages/queue-config props)
-                                  (partial messages/reindex-handler props)))))))
+         (do
+           (actions/reindex props)
+           (connect-for-reindexing props))
+         (connect-for-events props))))))
