@@ -50,7 +50,7 @@
               {:durable     true
                :auto-delete false
                :exclusive   false})
-  (doseq [key ["index.all" "index.data" "events.infosqito.#"]]
+  (doseq [key ["index.all" "index.data" "events.infosquito.#"]]
     (lq/bind ch queue-name exchange {:routing-key key})))
 
 (defn- reindex-handler
