@@ -116,6 +116,7 @@
   [props]
   (get-str props "infosquito.amqp.uri"))
 
+
 (defn get-amqp-exchange-name
   [props]
   (get-str props "infosquito.amqp.exchange.name"))
