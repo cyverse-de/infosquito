@@ -19,7 +19,7 @@
   ; search types. A second call is needed to kick off the sequence.
   (let [res (esd/search es index (name item-type)
               :query       (q/match-all)
-              :fields      ["_id"]
+              :_source     ["_id"]
               :sort        ["_doc"]
               :scroll      "1m"
               :size        (cfg/get-es-scroll-size props))]
