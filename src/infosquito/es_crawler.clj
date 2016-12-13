@@ -20,7 +20,7 @@
   (let [res (esd/search es index (name item-type)
               :query       (q/match-all)
               :fields      ["_id"]
-              :search_type "scan"
+              :sort        ["_doc"]
               :scroll      "1m"
               :size        (cfg/get-es-scroll-size props))]
     (if (resp/any-hits? res)
