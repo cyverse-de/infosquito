@@ -23,6 +23,7 @@
               :sort        ["_doc"]
               :scroll      "1m"
               :size        (cfg/get-es-scroll-size props))]
+    (log/info "got" (resp/total-hits res) "results")
     (if (resp/any-hits? res)
       (esd/scroll es (:_scroll_id res) :scroll "1m")
       res)))
