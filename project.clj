@@ -37,4 +37,5 @@
              :linters [:wrong-arity :wrong-ns-form :wrong-pre-post :wrong-tag :misplaced-docstrings]}
   :plugins [[jonase/eastwood "0.2.3"]
             [test2junit "1.1.3"]]
-  :profiles {:dev {:resource-paths ["dev-resources"]}})
+  :profiles {:dev {:resource-paths ["dev-resources"]}}
+  :jvm-opts ["-Dlogback.configurationFile=/etc/iplant/de/logging/infosquito-logging.xml"])
