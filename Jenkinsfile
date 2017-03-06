@@ -14,8 +14,11 @@ node('docker') {
         echo version
 
         dockerRepo = "test-${env.BUILD_TAG}"
+        descriptive_version = sh(returnStdout: true, script: 'git describe --long --tags --dirty --always').trim()
+        echo descriptive_version
 
-        sh "docker build --rm --build-arg git_commit=${git_commit} --build-arg version=${version} -t ${dockerRepo} ."
+
+        sh "docker build --rm --build-arg git_commit=${git_commit} --build-arg version=${version} --build-arg descriptive_version=${descriptive_version} -t ${dockerRepo} ."
 
 
         dockerTestRunner = "test-${env.BUILD_TAG}"
