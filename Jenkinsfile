@@ -13,10 +13,10 @@ node('docker') {
         version = sh(returnStdout: true, script: 'grep "(defproject" project.clj | sed -E \'s/^[^"]*"([^"]+)".*$/\\1/\'').trim()
         echo version
 
-        dockerRepo = "test-${env.BUILD_TAG}"
         descriptive_version = sh(returnStdout: true, script: 'git describe --long --tags --dirty --always').trim()
         echo descriptive_version
 
+        dockerRepo = "test-${env.BUILD_TAG}"
 
         sh "docker build --rm --build-arg git_commit=${git_commit} --build-arg version=${version} --build-arg descriptive_version=${descriptive_version} -t ${dockerRepo} ."
 
