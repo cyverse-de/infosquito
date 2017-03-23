@@ -4,6 +4,7 @@
   (:require [clojure.java.jdbc.deprecated :as sql]  ; TODO move away from deprecated namespace
             [clojure.string :as string]
             [clojure.tools.logging :as log]
+            [clojure.core.cache :as cache]
             [clojure-commons.file-utils :as file]
             [infosquito.es :as es]
             [infosquito.es-if :as es-if]
@@ -13,6 +14,10 @@
 (def ^:private file-type "file")
 (def ^:private dir-type "folder")
 
+(defn- new-existence-cache [] (cache/fifo-cache-factory {} :threshold 100000))
+(def ^:private existence-cache (atom (new-existence-cache)))
+(defn reset-existence-cache []
+  (reset! existence-cache (new-existence-cache)))
 
 (defn fmt-query-list
   [vals]
@@ -349,6 +354,11 @@
        (get-data-objects cfg))
   (log/info "data object indexing complete"))
 
+(defn reindex
+  [cfg]
+  (let [indexer (es/mk-indexer (:es-url cfg))]
+    (index-collections cfg indexer)
+    (index-data-objects cfg indexer)))
 
 (def ^:private existence-query
   (str "SELECT count(*)"
@@ -358,20 +368,36 @@
        "                      WHERE meta_attr_name = 'ipc_UUID' AND meta_attr_value = ?)"))
 
 
-(defn file-exists?
+(defn- exists?*
   [uuid]
   (sql/with-query-results rs [existence-query uuid]
     ((comp pos? :count first) rs)))
 
+(def hitcount (atom 0))
+(def misscount (atom 0))
+(def misscount-t (atom 0))
+(def misscount-f (atom 0))
 
-(defn folder-exists?
+(defn exists?
   [uuid]
-  (sql/with-query-results rs [existence-query uuid]
-    ((comp pos? :count first) rs)))
+  (cache/lookup
+    (if (cache/has? @existence-cache uuid)
+      (do (swap! hitcount inc)
+        (swap! existence-cache #(cache/hit % uuid)))
+      (do (swap! misscount inc)
+        (let [exists (exists?* uuid)]
+          (if exists (swap! misscount-t inc) (swap! misscount-f inc))
+          (swap! existence-cache #(cache/miss % uuid exists)))))
+    uuid))
 
+(defn summarize-counts [] (str "hits:" @hitcount " misses:" @misscount " (t:" @misscount-t " f:" @misscount-f ")"))
 
-(defn reindex
-  [cfg]
-  (let [indexer (es/mk-indexer (:es-url cfg))]
-    (index-collections cfg indexer)
-    (index-data-objects cfg indexer)))
+(def ^:private preseed-query
+  "SELECT meta_attr_value AS uuid from r_meta_main join r_objt_metamap USING (meta_id) WHERE meta_attr_name = 'ipc_UUID' AND meta_attr_value >= ? ORDER BY meta_attr_value LIMIT ?")
+
+(defn preseed-cache
+  "preseed-cache loads up `limit` number of UUIDs starting at `start` into the cache for `exists?`. nonexistent items will still have to individually revalidate with this implementation, but they should be more uncommon"
+  [start limit]
+  (sql/with-query-results rs [preseed-query start limit]
+    (doseq [row rs]
+      (swap! existence-cache #(cache/miss % (str (:uuid row)) true)))))
