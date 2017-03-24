@@ -392,12 +392,16 @@
 
 (defn summarize-counts [] (str "hits:" @hitcount " misses:" @misscount " (t:" @misscount-t " f:" @misscount-f ")"))
 
-(def ^:private preseed-query
-  "SELECT meta_attr_value AS uuid from r_meta_main join r_objt_metamap USING (meta_id) WHERE meta_attr_name = 'ipc_UUID' AND meta_attr_value >= ? ORDER BY meta_attr_value LIMIT ?")
+(def ^:private preseed-query-colls
+  "SELECT meta_attr_value AS uuid from r_meta_main join r_objt_metamap USING (meta_id) JOIN r_coll_main ON (r_coll_main.coll_id = r_objt_metamap.object_id) WHERE meta_attr_name = 'ipc_UUID' AND meta_attr_value >= ? ORDER BY meta_attr_value LIMIT ?")
+
+(def ^:private preseed-query-data
+  "SELECT meta_attr_value AS uuid from r_meta_main join r_objt_metamap USING (meta_id) JOIN r_data_main ON (r_data_main.data_id = r_objt_metamap.object_id) WHERE meta_attr_name = 'ipc_UUID' AND meta_attr_value >= ? GROUP BY meta_attr_value ORDER BY meta_attr_value LIMIT ?")
 
 (defn preseed-cache
-  "preseed-cache loads up `limit` number of UUIDs starting at `start` into the cache for `exists?`. nonexistent items will still have to individually revalidate with this implementation, but they should be more uncommon"
-  [start limit]
-  (sql/with-query-results rs [preseed-query start limit]
-    (doseq [row rs]
-      (swap! existence-cache #(cache/miss % (str (:uuid row)) true)))))
+  "preseed-cache loads up `limit` number of UUIDs for objects of type `objtype` (:file or :folder) starting at `start` into the cache for `exists?`. nonexistent items will still have to individually revalidate with this implementation, but they should be more uncommon"
+  [start limit objtype]
+  (let [preseed-query (get {:file preseed-query-data :folder preseed-query-colls} objtype)]
+    (sql/with-query-results rs [preseed-query start limit]
+      (doseq [row rs]
+        (swap! existence-cache #(cache/miss % (str (:uuid row)) true))))))

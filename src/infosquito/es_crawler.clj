@@ -78,7 +78,7 @@
         notify-prog    (fn [entries]
                          (let [e (notify-prog* entries)]
                            (when @should-preseed
-                             (icat/preseed-cache (:_id (first entries)) (Math/floor (* 1.2 (cfg/get-notify-count props))))
+                             (icat/preseed-cache (:_id (first entries)) (Math/floor (* 1.2 (cfg/get-notify-count props))) item-type)
                              (reset! should-preseed false))
                            e))]
     (log/info "purging non-existent" (name item-type) "entries")
