@@ -20,7 +20,7 @@
   (let [res (esd/search es index (name item-type)
               :query       (q/match-all)
               :_source     ["_id"]
-              :sort        ["_doc"]
+              :sort        ["id"]
               :scroll      "1m"
               :size        (cfg/get-es-scroll-size props))]
     (log/info "got" (resp/total-hits res) "results")
@@ -67,9 +67,20 @@
 
 (defn- purge-deleted-items
   [es item-type keep? props]
-  (let [notify-prog (notifier (cfg/notify-enabled? props)
-                              #(log/info %)
-                              (cfg/get-notify-count props))]
+  (let [should-preseed (atom true)
+        ;; notify-prog* does the actual notification, but also resets the atom for preseeding
+        ;; this way, we can rely on the notifier's logic for calling only periodically
+        notify-prog*   (notifier (cfg/notify-enabled? props)
+                                 #(do (log/info % (icat/summarize-counts)) (reset! should-preseed true))
+                                 (cfg/get-notify-count props))
+        ;; notify-prog wraps notify-prog* with the logic that does the actual preseeding
+        ;; it adds a slush factor of 20% for safety (it's still just one SQL command)
+        notify-prog    (fn [entries]
+                         (let [e (notify-prog* entries)]
+                           (when @should-preseed
+                             (icat/preseed-cache (:_id (first entries)) (Math/floor (* 1.2 (cfg/get-notify-count props))) item-type)
+                             (reset! should-preseed false))
+                           e))]
     (log/info "purging non-existent" (name item-type) "entries")
     (->> (item-seq es item-type props)
       (mapcat (comp notify-prog vector))
@@ -81,18 +92,20 @@
 
 (defn- purge-deleted-files
   [es props]
-  (purge-deleted-items es :file icat/file-exists? props))
+  (purge-deleted-items es :file icat/exists? props))
 
 (defn- purge-deleted-folders
   [es props]
   (let [index-base (cfg/get-base-collection props)]
     (purge-deleted-items es
                          :folder
-                         #(and (index/indexable? index-base %) (icat/folder-exists? %))
+                         #(and (index/indexable? index-base %) (icat/exists? %))
                          props)))
 
 (defn purge-index
   [props]
+  (icat/reset-existence-cache)
   (let [es (esr/connect (cfg/get-es-url props))]
     (purge-deleted-files es props)
-    (purge-deleted-folders es props)))
+    (purge-deleted-folders es props))
+  (icat/reset-existence-cache))

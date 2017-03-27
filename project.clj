@@ -19,6 +19,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [postgresql "9.1-901-1.jdbc4"]
                  [org.clojure/java.jdbc "0.3.5"]
+                 [org.clojure/core.cache "0.6.3"]
                  [cheshire "5.5.0"
                   :exclusions [[com.fasterxml.jackson.dataformat/jackson-dataformat-cbor]
                                [com.fasterxml.jackson.dataformat/jackson-dataformat-smile]
