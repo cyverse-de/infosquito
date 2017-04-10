@@ -7,7 +7,7 @@
       (string/trim (:out (sh "git" "rev-parse" "HEAD")))
       ""))
 
-(defproject org.cyverse/infosquito "2.8.1-SNAPSHOT"
+(defproject org.cyverse/infosquito "2.12.0-SNAPSHOT"
   :description "An ICAT database crawler used to index the contents of iRODS."
   :url "https://github.com/cyverse-de/infosquito"
   :license {:name "BSD"

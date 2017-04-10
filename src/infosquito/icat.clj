@@ -14,9 +14,18 @@
 (def ^:private file-type "file")
 (def ^:private dir-type "folder")
 
+(def hitcount (atom 0))
+(def misscount (atom 0))
+(def misscount-t (atom 0))
+(def misscount-f (atom 0))
+
 (defn- new-existence-cache [] (cache/fifo-cache-factory {} :threshold 100000))
 (def ^:private existence-cache (atom (new-existence-cache)))
 (defn reset-existence-cache []
+  (reset! hitcount 0)
+  (reset! misscount 0)
+  (reset! misscount-t 0)
+  (reset! misscount-f 0)
   (reset! existence-cache (new-existence-cache)))
 
 (defn fmt-query-list
@@ -372,11 +381,6 @@
   [uuid]
   (sql/with-query-results rs [existence-query uuid]
     ((comp pos? :count first) rs)))
-
-(def hitcount (atom 0))
-(def misscount (atom 0))
-(def misscount-t (atom 0))
-(def misscount-f (atom 0))
 
 (defn exists?
   [uuid]
