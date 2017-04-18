@@ -1,5 +1,9 @@
 FROM discoenv/clojure-base:master
 
+ENV CONF_TEMPLATE=/usr/src/app/infosquito.properties.tmpl
+ENV CONF_FILEBEAME=infosquito.properties
+ENV PROGRAM=infosquito
+
 VOLUME ["/etc/iplant/de"]
 
 COPY project.clj /usr/src/app/
@@ -13,8 +17,7 @@ RUN lein uberjar && \
 
 RUN ln -s "/usr/bin/java" "/bin/infosquito"
 
-ENTRYPOINT ["infosquito", "-Dlogback.configurationFile=/etc/iplant/de/logging/infosquito-logging.xml", "-cp", ".:infosquito-standalone.jar", "infosquito.core"]
-CMD ["--help"]
+ENTRYPOINT ["run-service", "-Dlogback.configurationFile=/etc/iplant/de/logging/infosquito-logging.xml", "-cp", ".:infosquito-standalone.jar", "infosquito.core"]
 
 ARG git_commit=unknown
 ARG version=unknown
