@@ -1,7 +1,7 @@
 FROM discoenv/clojure-base:master
 
 ENV CONF_TEMPLATE=/usr/src/app/infosquito.properties.tmpl
-ENV CONF_FILEBEAME=infosquito.properties
+ENV CONF_FILENAME=infosquito.properties
 ENV PROGRAM=infosquito
 
 VOLUME ["/etc/iplant/de"]
