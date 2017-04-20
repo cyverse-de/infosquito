@@ -11,13 +11,11 @@
             [infosquito.index :as index]
             [infosquito.props :as cfg]))
 
-(def ^:private index "data")
-
 (defn- seed-item-seq
   [es item-type props]
   ; The scan search type does not return any results with its first call, unlike all the other
   ; search types. A second call is needed to kick off the sequence.
-  (let [res (esd/search es index (name item-type)
+  (let [res (esd/search es (cfg/get-es-index props) (name item-type)
               :query       (q/match-all)
               :_source     ["_id"]
               :sort        ["id"]
@@ -49,7 +47,7 @@
        (dorun)))
 
 (defn- delete-items
-  [es item-type items]
+  [es index item-type items]
   (dorun (map (partial log-deletion item-type) items))
   (try
     (let [req (bulk/bulk-delete items)
@@ -86,7 +84,7 @@
       (mapcat (comp notify-prog vector))
       (remove (comp (retention-logger item-type keep?) :_id))
       (partition-all (cfg/get-index-batch-size props))
-      (map (partial delete-items es item-type))
+      (map (partial delete-items es (cfg/get-es-index props) item-type))
       dorun)
     (log/info (name item-type) "entry purging complete")))
 
