@@ -21,6 +21,9 @@
 (deftest test-get-es-port
   (is (= "31338" (get-es-port props))))
 
+(deftest test-get-es-index
+  (is (= "data" (get-es-index props))))
+
 (deftest test-get-es-scroll-size
   (is (= "1m" (get-es-scroll-size props))))
 

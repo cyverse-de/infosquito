@@ -10,7 +10,6 @@
             [infosquito.es-if :as es-if]
             [infosquito.index :as index]))
 
-(def ^:private index "data")
 (def ^:private file-type "file")
 (def ^:private dir-type "folder")
 
@@ -169,10 +168,11 @@
      icat-password    - the ICAT database user password
      collection-base  - the root collection contain all the entries of interest
      es-url           - the base URL to use when connecting to ElasticSearch
+     es-index         - the ElasticSearch index
      notify?          - true if progress notifications are enabled
      notify-count     - the number of items to process before logging a notification
      index-batch-size - the number of items to be processed at once during an indexing pass"
-  [{:keys [icat-host icat-port icat-db icat-user icat-password collection-base es-url notify?
+  [{:keys [icat-host icat-port icat-db icat-user icat-password collection-base es-url es-index notify?
            notify-count index-batch-size]
     :or   {icat-port        "5432"
            icat-db          "ICAT"
@@ -189,6 +189,7 @@
    :result-page-size (* 8 index-batch-size)
    :index-batch-size index-batch-size
    :es-url           es-url
+   :es-index         es-index
    :notify?          notify?
    :notify-count     notify-count})
 
@@ -303,7 +304,7 @@
 
 
 (defn index-entries
-  [indexer entry-type entries]
+  [indexer index entry-type entries]
   (log/debug "indexing" entry-type (map :path entries))
   (letfn [(log-failures [bulk-result]
             (doseq [{result :index} (:items bulk-result)]
@@ -349,7 +350,7 @@
 (defn- index-collections
   [cfg indexer]
   (log/info "indexing" (count-collections cfg) "collections")
-  (->> (partial index-entries indexer dir-type)
+  (->> (partial index-entries indexer (:es-index cfg) dir-type)
        (notifier (:notify? cfg) #(log/info %) (:notify-count cfg))
        (get-collections cfg))
   (log/info "collection indexing complete"))
@@ -358,7 +359,7 @@
 (defn- index-data-objects
   [cfg indexer]
   (log/info "indexing" (count-data-objects cfg) "data objects")
-  (->> (partial index-entries indexer file-type)
+  (->> (partial index-entries indexer (:es-index cfg) file-type)
        (notifier (:notify? cfg) #(log/info %) (:notify-count cfg))
        (get-data-objects cfg))
   (log/info "data object indexing complete"))
