@@ -15,14 +15,17 @@
     (.load (reader "dev-resources/empty.properties"))))
 
 
+(deftest test-get-es-uri
+  (is (= "http://elastic-host:9200" (get-es-uri props))))
+
 (deftest test-get-es-host
   (is (= "elastic-host" (get-es-host props))))
 
 (deftest test-get-es-port
-  (is (= "31338" (get-es-port props))))
+  (is (= "9200" (get-es-port props))))
 
 (deftest test-get-es-index
-  (is (= "data" (get-es-index props))))
+  (is (= "data-test" (get-es-index props))))
 
 (deftest test-get-es-scroll-size
   (is (= "1m" (get-es-scroll-size props))))
@@ -54,11 +57,17 @@
 (deftest test-get-amqp-reindex-queue
   (is (= "amqp-reindex-queue" (get-amqp-reindex-queue props))))
 
+(deftest test-get-default-es-uri
+  (is (= "http://elasticsearch:9200" (get-es-uri bad-props))))
+
 (deftest test-get-default-es-host
   (is (= "elasticsearch" (get-es-host bad-props))))
 
 (deftest test-get-default-es-port
   (is (= "9200" (get-es-port bad-props))))
+
+(deftest test-get-default-es-index
+  (is (= "data" (get-es-index bad-props))))
 
 (deftest test-get-default-es-scroll-size
   (is (= "1000" (get-es-scroll-size bad-props))))
