@@ -103,7 +103,7 @@
 (defn purge-index
   [props]
   (icat/reset-existence-cache)
-  (let [es (esr/connect (cfg/get-es-url props))]
+  (let [es (esr/connect (cfg/get-es-uri props))]
     (purge-deleted-files es props)
     (purge-deleted-folders es props))
   (icat/reset-existence-cache))
