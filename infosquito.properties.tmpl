@@ -10,7 +10,7 @@
 {{ with $v := (key (printf "%s/icat/password" $base )) }}infosquito.icat.password = {{ $v }}{{ end }}
 {{ with $v := (key (printf "%s/icat/db" $base )) }}infosquito.icat.db = {{ $v }}{{ end }}
 
-{{ with $v := (key (printf "%s/irods/zone" $base )) }}infosquito.base-collection  = {{ /$v }}{{ end }}
+{{ with $v := (key (printf "%s/irods/zone" $base )) }}infosquito.base-collection  = /{{ $v }}{{ end }}
 {{ with $v := (key (printf "%s/elasticsearch/batch-size" $base )) }}infosquito.index-batch-size = {{ $v }}{{ end }}
 
 {{ with $v := (key (printf "%s/amqp/uri" $base )) }}infosquito.amqp.uri = {{ $v }}{{ end }}
@@ -23,4 +23,4 @@
 {{ with $v := (key (printf "%s/infosquito/notify-count" $base )) }}infosquito.notify.count   = {{ $v }}{{ end }}
 
 {{ with $v := (key (printf "%s/infosquito/retry-interval" $base )) }}infosquito.retry-interval = {{ $v }}{{ end }}
-{{- end -}
+{{- end -}}
