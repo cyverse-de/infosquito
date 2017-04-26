@@ -4,8 +4,6 @@ ENV CONF_TEMPLATE=/usr/src/app/infosquito.properties.tmpl
 ENV CONF_FILENAME=infosquito.properties
 ENV PROGRAM=infosquito
 
-VOLUME ["/etc/iplant/de"]
-
 COPY project.clj /usr/src/app/
 RUN lein deps
 
