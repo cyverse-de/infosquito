@@ -45,9 +45,12 @@
   "Throws:
     :connection-refused - This is thrown if a connection cannot be established
       to Elastic Search"
-  [es-url]
+  [es-url es-user es-password]
   (ss/try+
-    (->Indexer (cer/connect es-url))
+    (let [http-opts (if (or (empty? es-user) (empty? es-password))
+                      {}
+                      {:basic-auth [es-user es-password]})]
+      (->Indexer (cer/connect es-url http-opts)))
     (catch ConnectException e
       (ss/throw+ {:type :connection-refused 
                   :msg (str "Cannot connect to Elastic Search. " 

@@ -12,6 +12,8 @@
    :icat-password    (cfg/get-icat-pass p)
    :collection-base  (cfg/get-base-collection p)
    :es-url           (cfg/get-es-uri p)
+   :es-user          (cfg/get-es-user p)
+   :es-password      (cfg/get-es-password p)
    :es-index         (cfg/get-es-index p)
    :notify?          (cfg/notify-enabled? p)
    :notify-count     (cfg/get-notify-count p)

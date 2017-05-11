@@ -366,7 +366,7 @@
 
 (defn reindex
   [cfg]
-  (let [indexer (es/mk-indexer (:es-url cfg))]
+  (let [indexer (es/mk-indexer (:es-url cfg) (:es-user cfg) (:es-password cfg))]
     (index-collections cfg indexer)
     (index-data-objects cfg indexer)))
 
