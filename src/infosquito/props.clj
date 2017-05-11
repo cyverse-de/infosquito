@@ -61,6 +61,14 @@
   [props]
   (get-str props "infosquito.es.uri"))
 
+(defn get-es-user
+  [props]
+  (get-str props "infosquito.es.user"))
+
+(defn get-es-password
+  [props]
+  (get-str props "infosquito.es.password"))
+
 (defn get-es-index
   [props]
   (get-str props "infosquito.es.index"))

@@ -18,6 +18,12 @@
 (deftest test-get-es-uri
   (is (= "http://elastic-host:9200" (get-es-uri props))))
 
+(deftest test-get-es-user
+  (is (= "default_username" (get-es-user props))))
+
+(deftest test-get-es-password
+  (is (= "qwerty" (get-es-password props))))
+
 (deftest test-get-es-index
   (is (= "data-test" (get-es-index props))))
 
