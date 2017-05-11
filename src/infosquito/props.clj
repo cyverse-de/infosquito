@@ -10,8 +10,6 @@
 
 (def ^:private prop-defaults
   {"infosquito.es.uri"                    "http://elasticsearch:9200"
-   "infosquito.es.host"                   "elasticsearch"
-   "infosquito.es.port"                   "9200"
    "infosquito.es.index"                  "data"
    "infosquito.es.scroll-size"            "1000"
    "infosquito.icat.host"                 "irods"
@@ -58,15 +56,6 @@
         (System/exit 1)))
     (get prop-defaults prop-name)))
 
-
-(defn get-es-host
-  [props]
-  (get-str props "infosquito.es.host"))
-
-
-(defn get-es-port
-  [props]
-  (get-str props "infosquito.es.port"))
 
 (defn get-es-uri
   [props]
