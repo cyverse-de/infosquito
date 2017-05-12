@@ -1,7 +1,7 @@
 {{- with $base := (printf "configs/%s" (env "DE_ENV")) -}}
 {{ with $v := (key (printf "%s/elasticsearch/base" $base )) }}infosquito.es.uri = {{ $v }}{{ end }}
-{{ with $v := (key (printf "%s/elasticsearch/host" $base )) }}infosquito.es.host = {{ $v }}{{ end }}
-{{ with $v := (key (printf "%s/elasticsearch/port" $base )) }}infosquito.es.port = {{ $v }}{{ end }}
+{{ with $v := (key (printf "%s/elasticsearch/username" $base )) }}infosquito.es.user = {{ $v }}{{ end }}
+{{ with $v := (key (printf "%s/elasticsearch/password" $base )) }}infosquito.es.password = {{ $v }}{{ end }}
 {{ with $v := (key (printf "%s/elasticsearch/data-alias" $base )) }}infosquito.es.index = {{ $v }}{{ end }}
 {{ with $v := (key (printf "%s/elasticsearch/scroll-size" $base )) }}infosquito.es.scroll-size = {{ $v }}{{ end }}
 

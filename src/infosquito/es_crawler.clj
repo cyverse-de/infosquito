@@ -103,7 +103,11 @@
 (defn purge-index
   [props]
   (icat/reset-existence-cache)
-  (let [es (esr/connect (cfg/get-es-uri props))]
+  (let [http-opts (if (or (empty? (cfg/get-es-user props)) (empty? (cfg/get-es-password props)))
+                    {}
+                    {:basic-auth [(cfg/get-es-user props) (cfg/get-es-password props)]})
+        es (esr/connect (cfg/get-es-uri props) http-opts)]
     (purge-deleted-files es props)
     (purge-deleted-folders es props))
   (icat/reset-existence-cache))
+
