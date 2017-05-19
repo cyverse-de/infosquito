@@ -19,7 +19,7 @@
   (is (= "http://elastic-host:9200" (get-es-uri props))))
 
 (deftest test-get-es-user
-  (is (= "default_username" (get-es-user props))))
+  (is (= nil (get-es-user props))))
 
 (deftest test-get-es-password
   (is (= "qwerty" (get-es-password props))))

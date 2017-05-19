@@ -63,7 +63,7 @@
 
 (defn get-es-user
   [props]
-  (get-str props "infosquito.es.user"))
+  (get-str props "infosquito.es.username"))
 
 (defn get-es-password
   [props]
