@@ -172,11 +172,11 @@
      notify?          - true if progress notifications are enabled
      notify-count     - the number of items to process before logging a notification
      index-batch-size - the number of items to be processed at once during an indexing pass"
-  [{:keys [icat-host icat-port icat-db icat-user icat-password collection-base es-url es-index notify?
-           notify-count index-batch-size]
+  [{:keys [icat-host icat-port icat-db icat-user icat-password collection-base
+           es-url es-user es-password es-index
+           notify? notify-count index-batch-size]
     :or   {icat-port        "5432"
            icat-db          "ICAT"
-           es-port          "9200"
            notify?          false
            notify-count     0
            index-batch-size 100}}]
@@ -189,6 +189,8 @@
    :result-page-size (* 8 index-batch-size)
    :index-batch-size index-batch-size
    :es-url           es-url
+   :es-user          es-user
+   :es-password      es-password
    :es-index         es-index
    :notify?          notify?
    :notify-count     notify-count})
