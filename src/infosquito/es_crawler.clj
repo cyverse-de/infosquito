@@ -9,7 +9,21 @@
             [clojurewerkz.elastisch.query :as q]
             [infosquito.icat :as icat]
             [infosquito.index :as index]
-            [infosquito.props :as cfg]))
+            [infosquito.props :as cfg]
+            [clojurewerkz.elastisch.arguments :as ar])
+  (:import (clojurewerkz.elastisch.rest Connection)))
+
+(defn scroll
+  "Performs a scroll query, fetching the next page of results from a
+   query given a scroll id"
+  [^Connection conn scroll-id & args]
+  (let [opts (ar/->opts args)
+        qk   [:search_type :scroll :routing :preference]
+        qp   (select-keys opts qk)
+        body {:scroll_id scroll-id}]
+    (esr/post conn (esr/scroll-url conn)
+                      {:body body
+                       :query-params qp})))
 
 (defn- seed-item-seq
   [es item-type props]
@@ -23,7 +37,7 @@
               :size        (cfg/get-es-scroll-size props))]
     (log/info "got" (resp/total-hits res) "results")
     (if (resp/any-hits? res)
-      (esd/scroll es (:_scroll_id res) :scroll "1m")
+      (scroll es (:_scroll_id res) :scroll "1m")
       res)))
 
 (defn- item-seq
