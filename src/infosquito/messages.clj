@@ -90,6 +90,7 @@
  [props ch]
  (let [exchange   (cfg/get-amqp-exchange-name props)
        queue-name (cfg/get-amqp-reindex-queue props)]
+   (lb/qos ch 1)
    (le/topic ch exchange
      {:durable     (cfg/amqp-exchange-durable? props)
       :auto-delete (cfg/amqp-exchange-auto-delete? props)})
