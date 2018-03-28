@@ -11,6 +11,7 @@
             [infosquito.props :as props]
             [common-cli.core :as ccli]
             [me.raynes.fs :as fs]
+            [clj-http.client :refer [with-connection-pool]]
             [service-logging.thread-context :as tc])
   (:import [java.util Properties]))
 
@@ -60,6 +61,7 @@
       (when-not (fs/readable? (:config options))
         (ccli/exit 1 "The config file is not readable."))
       (let [props (load-config-from-file (:config options))]
-        (if (:reindex options)
-          (actions/reindex props)
-          (messages/repeatedly-connect props))))))
+        (with-connection-pool {:timeout 30 :threads 4 :insecure? false :default-per-route 10}
+          (if (:reindex options)
+            (actions/reindex props)
+            (messages/repeatedly-connect props)))))))
