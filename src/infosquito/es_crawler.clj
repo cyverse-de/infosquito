@@ -10,7 +10,8 @@
             [infosquito.icat :as icat]
             [infosquito.index :as index]
             [infosquito.props :as cfg]
-            [clojurewerkz.elastisch.arguments :as ar])
+            [clojurewerkz.elastisch.arguments :as ar]
+            [slingshot.slingshot :refer [try+]])
   (:import (clojurewerkz.elastisch.rest Connection)))
 
 (defn scroll
@@ -63,11 +64,12 @@
 (defn- delete-items
   [es index item-type items]
   (dorun (map (partial log-deletion item-type) items))
-  (try
+  (try+
     (let [req (bulk/bulk-delete items)
           res (bulk/bulk-with-index-and-type es index (:name item-type) req :refresh true)]
       (log-failures res))
-    (catch Throwable t
+    (catch Object _
+      (log/error (:throwable &throw-context) "Error deleting items from elasticsearch")
       (dorun (map (partial log-failure (name item-type)) (map :id items))))))
 
 (defn- retention-logger
