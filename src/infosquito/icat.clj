@@ -8,7 +8,8 @@
             [clojure-commons.file-utils :as file]
             [infosquito.es :as es]
             [infosquito.es-if :as es-if]
-            [infosquito.index :as index]))
+            [infosquito.index :as index]
+            [slingshot.slingshot :refer [try+]]))
 
 (def ^:private file-type "file")
 (def ^:private dir-type "folder")
@@ -369,8 +370,14 @@
 (defn reindex
   [cfg]
   (let [indexer (es/mk-indexer (:es-url cfg) (:es-user cfg) (:es-password cfg))]
-    (index-collections cfg indexer)
-    (index-data-objects cfg indexer)))
+    (try+
+      (index-collections cfg indexer)
+      (catch Object _
+        (log/error (:throwable &throw-context) "Error while indexing collections, continuing")))
+    (try+
+      (index-data-objects cfg indexer)
+      (catch Object _
+        (log/error (:throwable &throw-context) "Error while indexing data objects")))))
 
 (def ^:private existence-query
   (str "SELECT count(*)"
