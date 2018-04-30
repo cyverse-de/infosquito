@@ -96,16 +96,13 @@
                              (reset! should-preseed false))
                            e))]
     (log/info "purging non-existent" (name item-type) "entries")
-    (try+
-      (->> (item-seq es item-type props)
-        (mapcat (comp notify-prog vector))
-        (remove (comp (retention-logger item-type keep?) :_id))
-        (partition-all (cfg/get-index-batch-size props))
-        (map (partial delete-items es (cfg/get-es-index props) item-type))
-        dorun)
-      (log/info (name item-type) "entry purging complete")
-      (catch Object _
-        (log/error (:throwable &throw-context) (str "Error while purging " (name item-type) " entries, continuing"))))))
+    (->> (item-seq es item-type props)
+      (mapcat (comp notify-prog vector))
+      (remove (comp (retention-logger item-type keep?) :_id))
+      (partition-all (cfg/get-index-batch-size props))
+      (map (partial delete-items es (cfg/get-es-index props) item-type))
+      dorun)
+    (log/info (name item-type) "entry purging complete")))
 
 (defn- purge-deleted-files
   [es props]
