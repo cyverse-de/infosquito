@@ -34,11 +34,11 @@
               :query       (q/match-all)
               :_source     ["_id"]
               :sort        ["id"]
-              :scroll      "10m"
+              :scroll      "60m"
               :size        (cfg/get-es-scroll-size props))]
     (log/info "got" (resp/total-hits res) "results")
     (if (resp/any-hits? res)
-      (scroll es (:_scroll_id res) :scroll "10m")
+      (scroll es (:_scroll_id res) :scroll "60m")
       res)))
 
 (defn- item-seq
